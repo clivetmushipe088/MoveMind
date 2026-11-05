@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>MoveMind Prototype</title>
+<meta name="description" content="Clickable prototype of MoveMind, the 10-Minute Movement Circle for university students in Kigali.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Nunito:wght@700;900&display=swap">
+<style>
+  :root {
+    --ink: #12302B;
+    --ink-soft: #4B5F5A;
+    --cream: #F6F2EA;
+    --paper: #FFFDF8;
+    --line: #DDD6C8;
+    --green: #1C4740;
+    --green-soft: #E3EBE1;
+    --coral: #F08A5D;
+    --coral-deep: #C4491C;
+    --mint: #BFD8D0;
+    --body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    --display: 'Nunito', 'DM Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--ink);
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }
+
+  /* top bar */
+  .top {
+    width: 100%;
+    max-width: 960px;
+    padding: 16px 16px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: var(--cream);
+  }
+  .brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .brand h1 { margin: 0; font-family: var(--display); font-weight: 900; font-size: 24px; }
+  .brand span { color: var(--mint); font-size: 16px; }
+  .steps { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    border: 1px solid var(--mint);
+    background: transparent;
+    color: var(--cream);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 500;
+    min-height: 40px;
+  }
+  .pill[aria-current="true"] { background: var(--coral); border-color: var(--coral); color: var(--ink); font-weight: 700; }
+  .stepmap { display: flex; gap: 8px; align-items: center; color: var(--mint); font-size: 16px; flex-wrap: wrap; }
+  .stepmap b { color: var(--cream); font-weight: 700; }
+  .stepmap .on { color: var(--coral); font-weight: 700; }
+
+  /* phone */
+  .stage { flex: 1; width: 100%; display: flex; justify-content: center; padding: 8px 16px 16px; min-height: 0; }
+  .phone {
+    width: 100%;
+    max-width: 400px;
+    height: min(740px, calc(100dvh - 190px));
+    min-height: 520px;
+    background: var(--cream);
+    border: 10px solid #0A1D1A;
+    border-radius: 36px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  }
+  .appbar {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .appbar strong { font-family: var(--display); font-weight: 900; font-size: 18px; }
+  .tag {
+    background: var(--green);
+    color: var(--mint);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: right;
+  }
+  #screen { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 900; font-size: 26px; line-height: 1.15; }
+  h3 { margin: 0; font-size: 18px; font-weight: 700; }
+  p { margin: 0; }
+  .muted { color: var(--ink-soft); }
+  .small { font-size: 16px; }
+
+  .btn {
+    width: 100%;
+    border: 0;
+    border-radius: 14px;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 14px 16px;
+    font-weight: 700;
+    font-size: 17px;
+    min-height: 52px;
+  }
+  .btn.coral { background: var(--coral); color: var(--ink); }
+  .btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+  .btn:active { transform: translateY(1px); }
+
+  .poster {
+    background: var(--coral);
+    color: var(--ink);
+    border-radius: 18px;
+    padding: 28px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 3px solid var(--ink);
+  }
+  .poster .big { font-family: var(--display); font-weight: 900; font-size: 34px; line-height: 1.05; letter-spacing: .5px; }
+  .poster .led { margin-top: 6px; font-weight: 700; }
+
+  .chat { display: flex; flex-direction: column; gap: 8px; }
+  .msg { max-width: 86%; padding: 10px 14px; border-radius: 16px; background: var(--paper); border: 1px solid var(--line); }
+  .msg .who { display: block; font-size: 14px; font-weight: 700; color: var(--coral-deep); margin-bottom: 2px; }
+  .msg.guide { align-self: flex-start; background: var(--green-soft); border-color: #C9D8C6; }
+  .msg.peer { align-self: flex-start; }
+  .msg.me { align-self: flex-end; background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .msg.me .who { color: var(--mint); }
+  .pop { animation: pop .25s ease-out both; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .note { background: #FBEBDD; border: 1px solid #F0C8A8; border-radius: 14px; padding: 12px 14px; font-size: 16px; }
+  .safety { background: var(--ink); color: var(--cream); border-radius: 14px; padding: 12px 14px; font-size: 16px; }
+
+  .timer { font-family: var(--display); font-weight: 900; font-size: 64px; text-align: center; letter-spacing: 1px; }
+  .ring { align-self: center; width: 200px; height: 200px; border-radius: 50%; border: 10px solid var(--green-soft); display: flex; align-items: center; justify-content: center; background: var(--paper); }
+
+  .faces { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .face { border: 2px solid var(--line); background: var(--paper); border-radius: 14px; padding: 10px 0 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 14px; min-height: 76px; }
+  .face .e { font-size: 32px; line-height: 1.1; }
+  .face:hover { border-color: var(--ink); }
+
+  .door { text-align: left; border: 2px solid var(--ink); background: var(--paper); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; width: 100%; }
+  .door .lab { font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--coral-deep); }
+  .door .txt { font-size: 18px; font-weight: 700; }
+  .door.b { background: var(--coral); border-color: var(--ink); }
+  .door.b .lab { color: var(--ink); }
+
+  .bars { display: flex; align-items: flex-end; gap: 10px; height: 120px; padding-top: 8px; }
+  .bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; font-size: 14px; }
+  .bar i { display: block; width: 100%; background: var(--green); border-radius: 8px 8px 0 0; min-height: 6px; }
+  .bar span.v { font-weight: 700; }
+
+  .toggle { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .sw { width: 52px; height: 30px; border-radius: 999px; border: 0; background: #B8B2A4; position: relative; flex: none; }
+  .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .15s; }
+  .sw[aria-checked="true"] { background: var(--green); }
+  .sw[aria-checked="true"]::after { transform: translateX(22px); }
+
+  .voices { display: flex; gap: 6px; flex-wrap: wrap; font-size: 14px; font-weight: 700; }
+  .voices span { padding: 4px 10px; border-radius: 999px; background: var(--green-soft); }
+  .voices span.on { background: var(--coral); }
+
+  .foot { padding: 8px 16px 12px; font-size: 14px; color: var(--ink-soft); text-align: center; background: var(--cream); border-top: 1px solid var(--line); }
+
+  @media (max-width: 480px) {
+    .stage { padding: 0; }
+    .phone { border: 0; border-radius: 0; max-width: none; height: calc(100dvh - 150px); }
+  }
+  @media (prefers-reduced-motion: reduce) { .pop { animation: none; } #screen { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <h1>MoveMind</h1>
+      <span>The 10-Minute Movement Circle · clickable prototype</span>
+    </div>
+    <div class="stepmap" id="stepmap" aria-label="Journey steps"></div>
+    <nav class="steps" aria-label="Jump to a screen" id="jump"></nav>
+  </header>
+
+  <main class="stage">
+    <div class="phone" role="application" aria-label="MoveMind phone prototype">
+      <div class="appbar"><strong>MoveMind</strong><span class="tag" id="tag"></span></div>
+      <div id="screen" aria-live="polite"></div>
+      <div class="foot">Prototype with example data. A movement and peer support programme, not a medical or emergency service.</div>
+    </div>
+  </main>
+
+<script>
+(function () {
+  'use strict';
+
+  var state = { day: 1, moods: [], door: null, autoRejoin: true, timer: null, secs: 600 };
+  var FACES = [
+    { v: 1, e: '😞', t: 'Heavy' },
+    { v: 2, e: '😕', t: 'Low' },
+    { v: 3, e: '😐', t: 'Okay' },
+    { v: 4, e: '🙂', t: 'Good' },
+    { v: 5, e: '😄', t: 'Great' }
+  ];
+  var STEP_OF = { poster: 1, guide: 1, join: 1, daily: 2, checkin: 2, done: 2, doors: 2, doorA: 2, doorB: 2, back: 3 };
+  var JUMPS = [
+    ['poster', 'Entry'],
+    ['daily', 'Daily Circle'],
+    ['doors', 'Two Doors'],
+    ['back', 'Back to the Circle']
+  ];
+  var el = document.getElementById('screen');
+  var tagEl = document.getElementById('tag');
+
+  function msg(cls, who, text) {
+    return '<div class="msg ' + cls + ' pop"><span class="who">' + who + '</span>' + text + '</div>';
+  }
+  function voices(on) {
+    var all = ['Guide', 'Peers', 'Clinician'];
+    return '<div class="voices" aria-label="Order of voices">' + all.map(function (v) {
+      return '<span class="' + (on.indexOf(v) > -1 ? 'on' : '') + '">' + v + '</span>';
+    }).join('') + '</div>';
+  }
+  function btn(action, label, cls) {
+    return '<button class="btn ' + (cls || '') + '" data-a="' + action + '">' + label + '</button>';
+  }
+
+  var screens = {
+    poster: function () {
+      return {
+        tag: 'Voice: Guide (peer)',
+        html:
+          '<h2>1. Entry</h2>' +
+          '<p class="muted">Step 1: the first voice is a peer, not a clinic.</p>' +
+          '<div class="poster" role="img" aria-label="Campus poster">' +
+            '<div class="big">10 MIN.<br>MOVE.<br>FEEL.</div>' +
+            '<p>No gym. No sign-up forms.<br>Walk, stretch or dance<br>with people you know.</p>' +
+            '<p class="led">Led by your Circle Guide, a student like you</p>' +
+          '</div>' +
+          '<p class="small muted">The poster names a peer, not a programme. No mention of therapy, diagnosis or services.</p>' +
+          btn('go:guide', 'You see the poster. Meet the Guide', 'coral')
+      };
+    },
+    guide: function () {
+      return {
+        tag: 'Voice: Guide, face to face',
+        html:
+          '<h2>In person</h2>' +
+          '<p class="muted">A trained Circle Guide invites students in hallways, hostels and sports grounds. No appointment or referral needed.</p>' +
+          '<div class="chat" id="chat">' +
+            msg('guide', 'Circle Guide', 'Walking to class? Join our 10-minute Circle tonight.') +
+          '</div>' +
+          '<div id="slot">' + btn('guideReply', 'Ask: “What is it?”', 'ghost') + '</div>'
+      };
+    },
+    join: function () {
+      return {
+        tag: 'Voice: Guide, then peers',
+        html:
+          '<h2>10-Minute Movement Circle</h2>' +
+          '<p class="muted">A small group chat of about five. The first message is from the Guide, then peers.</p>' +
+          '<div class="chat">' +
+            msg('guide', 'Circle Guide', 'Welcome. I’m your Guide. Tonight: 10 minutes, any movement you like.') +
+            msg('peer', 'Peer', 'Joined. Walking after lectures.') +
+            msg('me', 'You', 'Joined too.') +
+          '</div>' +
+          btn('go:daily', 'Start tonight’s Circle', 'coral')
+      };
+    },
+    daily: function () {
+      return {
+        tag: 'Day ' + state.day,
+        html:
+          '<h2>2. Engagement</h2>' +
+          '<p class="muted">Day ' + state.day + ' of the Circle. Any movement counts: a walk, a stretch, dancing.</p>' +
+          '<div class="ring"><div class="timer" id="clock" role="timer">' + fmt(state.secs) + '</div></div>' +
+          '<div id="slot">' + btn('startTimer', 'Start 10 minutes', 'coral') + '</div>' +
+          btn('finish', 'Finish now (skip the wait for the demo)', 'ghost')
+      };
+    },
+    checkin: function () {
+      return {
+        tag: 'One-face check-in',
+        html:
+          '<h2>How did that feel?</h2>' +
+          '<p class="muted">One tap. No forms, no questions.</p>' +
+          '<div class="faces">' + FACES.map(function (f) {
+            return '<button class="face" data-a="mood:' + f.v + '" aria-label="' + f.t + '"><span class="e" aria-hidden="true">' + f.e + '</span>' + f.t + '</button>';
+          }).join('') + '</div>' +
+          '<p class="small muted">Demo tip: tap Heavy or Low on three days in a row to see the Guide reach out.</p>'
+      };
+    },
+    done: function () {
+      var bars = state.moods.map(function (m, i) {
+        return '<div class="bar"><span class="v">' + m + '</span><i style="height:' + (m * 18) + '%"></i><span>D' + (i + 1) + '</span></div>';
+      }).join('');
+      return {
+        tag: 'Voice: Peers',
+        html:
+          '<h2>Logged. Well done.</h2>' +
+          '<div class="card"><h3>Your mood so far (1 to 5)</h3><div class="bars">' + bars + '</div></div>' +
+          '<div class="chat">' + msg('peer', 'Peer', 'Walk tomorrow at 6? Come with us.') + '</div>' +
+          btn('nextDay', 'Next day (demo)', 'coral') +
+          '<p class="small muted">Only you see your own pattern. Your Guide reaches out if a run of low check-ins shows up.</p>'
+      };
+    },
+    doors: function () {
+      return {
+        tag: 'Voice: Guide first',
+        html:
+          '<h2>The Two Doors moment</h2>' +
+          voices(['Guide']) +
+          '<div class="chat">' +
+            msg('guide', 'Your Circle Guide (private message)', 'Hi. Your last three check-ins felt heavy. Nothing to fix tonight. You have two ways forward, and both are yours to choose.') +
+          '</div>' +
+          '<button class="door" data-a="go:doorA"><span class="lab">Door A</span><span class="txt">Stay with my Circle and the people and practices I trust</span></button>' +
+          '<button class="door b" data-a="go:doorB"><span class="lab">Door B</span><span class="txt">Talk to a campus counsellor. My Guide comes with me</span></button>' +
+          '<div class="note"><b>Good to know:</b> already following advice from elders or a traditional healer? Keep going. Mention it at the clinic. They ask to work alongside it, not to replace it.</div>' +
+          '<div class="safety"><b>Safety rule:</b> if you ever mention thoughts of suicide or self-harm, your Guide stays with you and moves to Door B the same day, with no waiting.</div>'
+      };
+    },
+    doorA: function () {
+      return {
+        tag: 'Voice: Peers',
+        html:
+          '<h2>Door A: my Circle</h2>' +
+          '<p class="muted">Circle peers, elders, faith or community practices and traditional knowledge. Your Guide treats these respectfully, as part of the plan.</p>' +
+          '<div class="chat">' + msg('peer', 'Peers', 'Walk tomorrow at 6? Come with us.') + '</div>' +
+          btn('chooseA', 'Count me in', 'coral') +
+          btn('go:doorB', 'I would like to talk to a counsellor too', 'ghost')
+      };
+    },
+    doorB: function () {
+      return {
+        tag: 'Voice: Clinician, with your Guide',
+        html:
+          '<h2>Door B: campus counsellor</h2>' +
+          voices(['Guide', 'Clinician']) +
+          '<div class="chat">' +
+            msg('guide', 'Your Circle Guide', 'I’ll come with you. I’ll introduce you to the counsellor in person, and I’ll check in within 48 hours.') +
+          '</div>' +
+          '<div class="note"><b>Warm handoff:</b> you are never handed to a clinic cold. Tell the counsellor about any advice from elders or a traditional healer, they will work alongside it.</div>' +
+          btn('chooseB', 'The visit is done', 'coral')
+      };
+    },
+    back: function () {
+      var mins = [10, 15, 15, 20, 25], days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+      var bars = mins.map(function (m, i) {
+        return '<div class="bar"><span class="v">' + m + '</span><i style="height:' + (m * 3.6) + '%"></i><span>' + days[i] + '</span></div>';
+      }).join('');
+      return {
+        tag: 'Voice heard last: peers',
+        html:
+          '<h2>3. Resolution</h2>' +
+          '<p class="muted">Back to the Circle, by default.' + (state.door === 'B' ? ' Your clinic visit is done.' : '') + '</p>' +
+          voices(['Guide', 'Peers']) +
+          '<div class="chat">' +
+            msg('guide', 'Circle Guide (2 days after the visit)', 'Good to see you today. Your spot in the Circle is still yours. How did the visit feel?') +
+            msg('me', 'You', 'Better than I expected.') +
+            msg('peer', 'Peer', 'We missed you. Tonight is a 10-minute walk.') +
+          '</div>' +
+          '<div class="card"><h3>Your pattern this week</h3><p class="small muted">Minutes moved (example data). Mood trend: improving.</p><div class="bars">' + bars + '</div></div>' +
+          '<div class="card"><h3>Your Circle this week</h3><p class="small">The group sees only an anonymous summary: 4 of 5 members moved on 4 or more days. No names, no individual check-ins.</p></div>' +
+          '<div class="card toggle"><span><b>Rejoin the Circle automatically after clinic visits</b><br><span class="small muted">You can opt out at any time.</span></span>' +
+            '<button class="sw" role="switch" aria-checked="' + state.autoRejoin + '" aria-label="Rejoin the Circle automatically" data-a="toggle"></button></div>' +
+          btn('restart', 'Restart the prototype', 'ghost')
+      };
+    }
+  };
+
+  function fmt(s) {
+    var m = Math.floor(s / 60), r = s % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+  }
+  function stopTimer() { if (state.timer) { clearInterval(state.timer); state.timer = null; } }
+
+  function renderChrome(name) {
+    var step = STEP_OF[name];
+    var steps = ['Entry', 'Engagement', 'Resolution'];
+    document.getElementById('stepmap').innerHTML = steps.map(function (s, i) {
+      return '<span class="' + (step === i + 1 ? 'on' : '') + '">' + (i + 1) + '. ' + s + '</span>' + (i < 2 ? '<span aria-hidden="true">→</span>' : '');
+    }).join('');
+    var active = name;
+    if (['checkin', 'done'].indexOf(name) > -1) active = 'daily';
+    if (['doorA', 'doorB'].indexOf(name) > -1) active = 'doors';
+    if (['guide', 'join'].indexOf(name) > -1) active = 'poster';
+    document.getElementById('jump').innerHTML = JUMPS.map(function (j) {
+      return '<button class="pill" data-a="go:' + j[0] + '"' + (active === j[0] ? ' aria-current="true"' : '') + '>' + j[1] + '</button>';
+    }).join('');
+  }
+
+  function go(name) {
+    stopTimer();
+    if (name === 'daily') state.secs = 600;
+    var s = screens[name]();
+    el.innerHTML = s.html;
+    tagEl.textContent = s.tag;
+    renderChrome(name);
+    el.scrollTop = 0;
+  }
+
+  function startTimer() {
+    stopTimer();
+    document.getElementById('slot').innerHTML = '<p class="small muted" style="text-align:center">Move your way. Dance counts.</p>';
+    state.timer = setInterval(function () {
+      state.secs -= 1;
+      var c = document.getElementById('clock');
+      if (c) c.textContent = fmt(state.secs);
+      if (state.secs <= 0) { go('checkin'); }
+    }, 1000);
+  }
+
+  function recordMood(v) {
+    state.moods.push(v);
+    var n = state.moods.length;
+    var heavy = n >= 3 && state.moods.slice(-3).every(function (m) { return m <= 2; });
+    go(heavy ? 'doors' : 'done');
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-a]');
+    if (!t) return;
+    var a = t.getAttribute('data-a');
+    if (a.indexOf('go:') === 0) return go(a.slice(3));
+    if (a.indexOf('mood:') === 0) return recordMood(parseInt(a.slice(5), 10));
+    switch (a) {
+      case 'guideReply':
+        document.getElementById('chat').insertAdjacentHTML('beforeend',
+          msg('me', 'You', 'What is it?') +
+          msg('guide', 'Circle Guide', 'Ten minutes, any movement you like. Dance counts.'));
+        document.getElementById('slot').innerHTML = btn('go:join', 'Join the Circle', 'coral');
+        el.scrollTop = el.scrollHeight;
+        break;
+      case 'startTimer': startTimer(); break;
+      case 'finish': go('checkin'); break;
+      case 'nextDay': state.day += 1; go('daily'); break;
+      case 'chooseA': state.door = 'A'; go('back'); break;
+      case 'chooseB': state.door = 'B'; go('back'); break;
+      case 'toggle':
+        state.autoRejoin = !state.autoRejoin;
+        t.setAttribute('aria-checked', String(state.autoRejoin));
+        break;
+      case 'restart':
+        state = { day: 1, moods: [], door: null, autoRejoin: true, timer: null, secs: 600 };
+        go('poster');
+        break;
+    }
+  });
+
+  go('poster');
+})();
+</script>
+</body>
+</html>
